@@ -14,7 +14,7 @@ def init_outputfolder(config):
         os.makedirs(config.output_folder)
 
     current_time = datetime.datetime.now()
-    current_time_str = datetime.datetime.strftime(current_time, '%m%d_%H%M')
+    current_time_str = datetime.datetime.strftime(current_time, '%m%d_%H%M%S')
 
     output_dir = os.path.join(config.output_folder, current_time_str)
 

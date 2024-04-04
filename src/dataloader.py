@@ -64,6 +64,6 @@ def fetch_trainloader(config, shuffle=True):
     datapair = record["data_pair"]
     root_dir = record["root"]
     dataset = ImageDataset(root_dir, datapair, transform)
-    data_loader = DataLoader(dataset=dataset, batch_size=config.batch_size, shuffle=shuffle, num_workers=1, drop_last=True)
+    data_loader = DataLoader(dataset=dataset, batch_size=config.batch_size, shuffle=shuffle, num_workers=0, drop_last=True)
 
     return data_loader

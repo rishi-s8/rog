@@ -5,9 +5,11 @@ gpu:
 
 # federated learning algorithm, federated model, and simulation settings
 fedalg: "fedavg"
+# model: "resnet18"
 model: "lenet"
 
-compress: "none"
+compress: "topk"
+sparsity: 0.875
 
 fed_lr: 0.003
 tau: 5
@@ -41,12 +43,12 @@ kernel:  model_zoos/kernels_bicubicx234.mat
 noise_level: 0.01
 
 # tresnet
-refine: False
-# refine: True
+# refine: False
+refine: True
 tresnet: model_zoos/tresnet.pth
 
 
 # Log configurations
-output_folder: "experiments"
+output_folder: "experiments/lenet/TopK"
 printevery: 1
 

@@ -70,6 +70,81 @@ class Topk:
         """Return the original tensor"""
         return tensor
 
+class ChunkingLayerwiseFirst:
+
+    def __init__(self, config):
+        self.num_chunks = config.num_chunks
+
+    def compress(self, tensor,  **kwargs):
+        """
+        Compress the input tensor with chunking and simulate the saved data volume in bit.
+
+        Args,
+            tensor (torch.tensor): the input tensor.
+        """
+        chunk_id = kwargs["chunk_id"] if "chunk_id" in kwargs else 0
+        print("chunk_id", chunk_id)
+        chunk_size = tensor.numel() // self.num_chunks
+        start_idx = chunk_id * chunk_size
+        end_idx = start_idx + chunk_size
+        if chunk_id == self.num_chunks - 1:
+            end_idx = tensor.numel()
+
+        original_shape = tensor.shape
+        tensor = tensor.flatten()
+        tensor_masked = torch.zeros_like(tensor)
+        tensor_masked[start_idx:end_idx] = tensor[start_idx:end_idx]
+        tensor_masked = tensor_masked.reshape(original_shape)
+
+        return tensor_masked
+
+    def decompress(self, tensor):
+        """Return the original tensor"""
+        return tensor
+
+class ChunkingLayerwiseRandom:
+
+    def __init__(self, config):
+        self.num_chunks = config.num_chunks
+
+    def compress(self, tensor,  **kwargs):
+        """
+        Compress the input tensor with signSGD and simulate the saved data volume in bit.
+
+        Args,
+            tensor (torch.tensor): the input tensor.
+        """
+        chunk_id = kwargs["chunk_id"] if "chunk_id" in kwargs else 0
+        layer_id = kwargs["layer_id"] if "layer_id" in kwargs else 0
+        chunk_id = (chunk_id + layer_id) % self.num_chunks
+        print("chunk_id", chunk_id)
+
+        total_elements = tensor.numel()
+        generator = torch.Generator()
+        generator.manual_seed(91)
+        indices = torch.randperm(total_elements, generator=generator)
+
+        chunk_size = total_elements // self.num_chunks
+        start_idx = chunk_id * chunk_size
+        end_idx = start_idx + chunk_size
+        if chunk_id == self.num_chunks - 1:
+            end_idx = total_elements
+
+        indices = indices[start_idx:end_idx]
+        print("number of indices selected", indices.shape, " out of ", total_elements)
+
+        original_shape = tensor.shape
+        tensor = tensor.flatten()
+        tensor_masked = torch.zeros_like(tensor)
+        tensor_masked[indices] = tensor[indices]
+        tensor_masked = tensor_masked.reshape(original_shape)
+
+        return tensor_masked
+
+    def decompress(self, tensor):
+        """Return the original tensor"""
+        return tensor
+
 
 class QsgdQuantizer:
     def __init__(self, config):
